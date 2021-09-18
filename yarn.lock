@@ -3813,6 +3813,11 @@
   dependencies:
     "@types/react" "*"
 
+"@types/matter-js@^0.17.5":
+  version "0.17.5"
+  resolved "https://registry.yarnpkg.com/@types/matter-js/-/matter-js-0.17.5.tgz#b7ddd422cf5980f01531dfed60fc11682a1adbb9"
+  integrity sha512-s4j6htb+NZNQyo2jP96uZ93aPn0fCw0RP1YnEDmKkIKpOVxvNWdEEPPj3U+9xezp3eQChvWOwHcR815rEBWexA==
+
 "@types/mdast@^3.0.0":
   version "3.0.3"
   resolved "https://registry.yarnpkg.com/@types/mdast/-/mdast-3.0.3.tgz#2d7d671b1cd1ea3deb306ea75036c2a0407d2deb"
@@ -11177,6 +11182,11 @@ match-sorter@^6.0.2:
   dependencies:
     "@babel/runtime" "^7.12.5"
     remove-accents "0.4.2"
+
+matter-js@^0.17.1:
+  version "0.17.1"
+  resolved "https://registry.yarnpkg.com/matter-js/-/matter-js-0.17.1.tgz#b30ac4c708116258fbcaacd2efd8a94e34a91c7f"
+  integrity sha512-pSquoENJgvSAlQGcA0s5UkmEohGXZaUww2g3B6qG87x0iEcVf+aigMXn5UkFPdnh6w3B+C4vXSLaYqhHwKrOLA==
 
 md5.js@^1.3.4:
   version "1.3.5"

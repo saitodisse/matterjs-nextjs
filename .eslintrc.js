@@ -6,12 +6,12 @@ module.exports = {
   },
   plugins: ['prettier'],
   extends: [
-    'next',
-    'next/core-web-vitals',
+    // 'next',
+    // 'next/core-web-vitals',
     'eslint-config-blvd/react',
     // 'plugin:@typescript-eslint/recommended',
-    'plugin:react/recommended',
-    'plugin:react-hooks/recommended',
+    // 'plugin:react/recommended',
+    // 'plugin:react-hooks/recommended',
     'prettier',
     'plugin:prettier/recommended', // Enables eslint-plugin-prettier and eslint-config-prettier. This will display prettier errors as ESLint errors. Make sure this is always the last configuration in the extends array.
   ],
@@ -44,12 +44,12 @@ module.exports = {
     'react/jsx-pascal-case': 0,
     camelcase: 0,
     'import/order': 0,
-    '@typescript-eslint/no-unused-vars': [
-      2,
-      {
-        argsIgnorePattern: '^_',
-      },
-    ],
+    // '@typescript-eslint/no-unused-vars': [
+    //   2,
+    //   {
+    //     argsIgnorePattern: '^_',
+    //   },
+    // ],
     'no-console': [
       2,
       {
