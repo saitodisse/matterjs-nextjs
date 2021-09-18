@@ -1,4 +1,4 @@
-export type LinksListIds = 'home' | 'github' | 'docs'
+export type LinksListIds = 'home' | 'github'
 
 export type LinkProps = {
   id: LinksListIds
@@ -19,10 +19,5 @@ export const LinksList: {
     id: 'github',
     name: 'Github',
     externalURL: 'https://github.com/nextjs-opinionated/nextjs-opinionated',
-  },
-  docs: {
-    id: 'docs',
-    name: 'Docs',
-    internalURL: '/docs',
   },
 }

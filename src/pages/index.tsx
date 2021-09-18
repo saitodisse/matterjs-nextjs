@@ -1,23 +1,17 @@
 /* eslint-disable no-console */
 import React, { useEffect, useRef, useState } from 'react'
 import Matter from 'matter-js'
-import { getRandom } from './getRandom'
+import { getRandom } from '../utils/getRandom'
 import router from 'next/router'
 
-const {
-  Bodies,
-  Body,
-  Composite,
-  Composites,
-  Constraint,
-  Engine,
-  Events,
-  Mouse,
-  MouseConstraint,
-  Render,
-  Runner,
-  World,
-} = Matter
+const { Bodies, Engine, Events, Mouse, MouseConstraint, Render, Runner, World } = Matter
+
+declare global {
+  interface Window {
+    engine: Matter.Engine
+    runner: Matter.Runner
+  }
+}
 
 export default function Page() {
   const canvas = useRef(null)
@@ -25,7 +19,7 @@ export default function Page() {
   const engineRef = useRef<Matter.Engine>()
   const runnerRef = useRef<Matter.Runner>()
   const [objectsCount, objectsCountSet] = useState(0)
-  const [creationActive, creationActiveSet] = useState(false)
+  const [fps, fpsSet] = useState(0)
 
   useEffect(() => {
     if (runnerRef.current) {
@@ -117,10 +111,10 @@ export default function Page() {
     let mouseIsDragging = false
     let setIntervalId: NodeJS.Timer
 
-    Matter.Events.on(mouseConstraint, 'startdrag', (ev) => {
+    Matter.Events.on(mouseConstraint, 'startdrag', () => {
       mouseIsDragging = true
     })
-    Matter.Events.on(mouseConstraint, 'enddrag', (ev) => {
+    Matter.Events.on(mouseConstraint, 'enddrag', () => {
       mouseIsDragging = false
     })
     Matter.Events.on(mouseConstraint, 'mousedown', (ev) => {
@@ -130,7 +124,7 @@ export default function Page() {
         }, (1000 / 60) * 3)
       }
     })
-    Matter.Events.on(mouseConstraint, 'mouseup', (ev) => {
+    Matter.Events.on(mouseConstraint, 'mouseup', () => {
       clearInterval(setIntervalId)
     })
 
@@ -148,6 +142,7 @@ export default function Page() {
           World.remove(engine.world, b)
         }
       })
+      fpsSet(Math.abs(runner.fps))
     })
 
     function createBalls(positionXY?: Matter.IMousePoint) {
@@ -183,7 +178,22 @@ export default function Page() {
 
     // Engine.update(engine);    document.
     // create runner
-    const runner = Runner.create()
+    const runner = Runner.create() as Matter.Runner & {
+      correction: number
+      counterTimestamp: number
+      delta: number
+      // deltaHistory: number
+      deltaMax: number
+      deltaMin: number
+      deltaSampleSize: number
+      enabled: boolean
+      fps: number
+      frameCounter: number
+      frameRequestId: number
+      isFixed: boolean
+      timePrev: number
+      timeScalePrev: number
+    }
     runnerRef.current = runner
     // run the engine
     Runner.run(runner, engine)
@@ -199,15 +209,16 @@ export default function Page() {
     // add To Global
     window.Matter = Matter
     window.engine = engine
+    window.runner = runner
   }
 
   return (
-    <div className='flex justify-center'>
+    <div className='flex flex-col items-center justify-center'>
       <canvas className='bg-gray-700' ref={canvas} />
-      <div className='mx-3 select-none border border-indigo-600p-3'>count: {objectsCount}</div>
-      <div className='mx-3 select-none border border-indigo-600p-3'>
-        creationActive: {creationActive ? 'creating' : 'move only'}
+      <div className='mx-3 border select-none border-indigo-600p-3'>
+        bodies count: {objectsCount}
       </div>
+      <div className='mx-3 border select-none border-indigo-600p-3'>fps: {fps}</div>
     </div>
   )
 }
