@@ -1,18 +1,21 @@
 /* eslint-disable no-console */
-import React, { useEffect, useRef } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import Matter from 'matter-js'
+import { getRandom } from './getRandom'
+import router from 'next/router'
 
 const {
-  Engine,
-  Render,
-  Mouse,
-  MouseConstraint,
-  Runner,
-  Body,
   Bodies,
+  Body,
   Composite,
   Composites,
   Constraint,
+  Engine,
+  Events,
+  Mouse,
+  MouseConstraint,
+  Render,
+  Runner,
   World,
 } = Matter
 
@@ -21,6 +24,8 @@ export default function Page() {
   const world = useRef<Matter.World>()
   const engineRef = useRef<Matter.Engine>()
   const runnerRef = useRef<Matter.Runner>()
+  const [objectsCount, objectsCountSet] = useState(0)
+  const [creationActive, creationActiveSet] = useState(false)
 
   useEffect(() => {
     if (runnerRef.current) {
@@ -31,9 +36,10 @@ export default function Page() {
     createWorld()
 
     return () => {
+      console.log('clear')
       Runner.stop(runnerRef.current as Matter.Runner)
       Engine.clear(engineRef.current as Matter.Engine)
-      createWorld()
+      router.reload()
     }
   }, [canvas, world])
 
@@ -45,7 +51,7 @@ export default function Page() {
     engineRef.current = engine
     world.current = engine.world
 
-    console.log('Creating world!')
+    console.log('createWorld')
 
     // create a renderer
     const render = Render.create({
@@ -60,7 +66,7 @@ export default function Page() {
         showAxes: false,
         wireframes: false,
       } as Matter.IRendererOptions,
-    })
+    }) as Matter.Render & { mouse: any }
 
     const wallBorderWidth = 25
     const wallLength = 500
@@ -92,11 +98,14 @@ export default function Page() {
         isStatic: true,
       }),
     ])
+
+    // MOUSE
     const mouse = Mouse.create(render.canvas)
+    render.mouse = mouse
     const mouseConstraint = MouseConstraint.create(engine, {
       mouse,
       constraint: {
-        stiffness: 0.2,
+        stiffness: 0.5,
         render: {
           visible: true,
         },
@@ -105,22 +114,56 @@ export default function Page() {
 
     World.add(engine.world, mouseConstraint)
 
-    Matter.Events.on(mouseConstraint, 'mousedown', (event) => {
-      createBalls(event.source.mouse.mousedownPosition)
+    let mouseIsDragging = false
+    let setIntervalId: NodeJS.Timer
+
+    Matter.Events.on(mouseConstraint, 'startdrag', (ev) => {
+      mouseIsDragging = true
+    })
+    Matter.Events.on(mouseConstraint, 'enddrag', (ev) => {
+      mouseIsDragging = false
+    })
+    Matter.Events.on(mouseConstraint, 'mousedown', (ev) => {
+      if (mouseIsDragging === false) {
+        setIntervalId = setInterval(() => {
+          createBalls(ev.source.mouse.position)
+        }, (1000 / 60) * 3)
+      }
+    })
+    Matter.Events.on(mouseConstraint, 'mouseup', (ev) => {
+      clearInterval(setIntervalId)
     })
 
-    function createBalls(mouseDownPosition?: Matter.IMousePoint) {
-      for (let i = 0; i < 10 * Math.random(); i += 1) {
-        World.add(
-          engine.world,
-          Bodies.circle(
-            mouseDownPosition?.x || WIDTH / 2,
-            mouseDownPosition?.y || HEIGHT / 2,
-            30 * Math.random() + 10,
-            { restitution: 0.7 }
-          )
-        )
+    //
+    //
+    // After Update
+    //
+    //
+    Events.on(engine, 'afterUpdate', (ev) => {
+      // const time = engine.timing.timestamp
+      objectsCountSet(ev.source.world.bodies.length)
+
+      ev.source.world.bodies.forEach((b) => {
+        if (b.position.x > WIDTH || b.position.x < 0 || b.position.y > HEIGHT) {
+          World.remove(engine.world, b)
+        }
+      })
+    })
+
+    function createBalls(positionXY?: Matter.IMousePoint) {
+      if (!positionXY) {
+        return
       }
+
+      World.add(
+        engine.world,
+        Bodies.circle(
+          positionXY.x + getRandom(15) || WIDTH / 2,
+          positionXY.y + getRandom(15) || HEIGHT / 2,
+          30 * Math.random() + 10,
+          { restitution: 0.7 }
+        )
+      )
     }
 
     createBalls()
@@ -128,38 +171,43 @@ export default function Page() {
     // add all of the bodies to the world
     // Composite.add(engine.world, [boxA, boxB, ground])
 
+    // function run() {
+    //   Engine.update(engine, 1000 / 60)
+    //   window.requestAnimationFrame(run)
+    //   objectsCountSet(engine.world.bodies.length)
+    // }
+    // window.requestAnimationFrame(run)
+
     // run the renderer
     Render.run(render)
 
+    // Engine.update(engine);    document.
     // create runner
     const runner = Runner.create()
     runnerRef.current = runner
-
     // run the engine
     Runner.run(runner, engine)
 
-    // addToGlobal()
+    // setIntervalId = setInterval(() => {
+    //   // kill if off the screen
+    //   engine.world.bodies.forEach((b) => {
+    //     console.log('--  b: ', b)
+    //   })
+    //   objectsCountSet(engine.world.bodies.length)
+    // }, 3000)
 
-    // function addToGlobal() {
-    //   window.Engine = Engine
-    //   window.Render = Render
-    //   window.Mouse = Mouse
-    //   window.MouseConstraint = MouseConstraint
-    //   window.Runner = Runner
-    //   window.Body = Body
-    //   window.Bodies = Bodies
-    //   window.Composite = Composite
-    //   window.Composites = Composites
-    //   window.Constraint = Constraint
-    //   window.World = World
-    //   window.runner = runner
-    //   window.engine = engine
-    // }
+    // add To Global
+    window.Matter = Matter
+    window.engine = engine
   }
 
   return (
     <div className='flex justify-center'>
       <canvas className='bg-gray-700' ref={canvas} />
+      <div className='mx-3 select-none border border-indigo-600p-3'>count: {objectsCount}</div>
+      <div className='mx-3 select-none border border-indigo-600p-3'>
+        creationActive: {creationActive ? 'creating' : 'move only'}
+      </div>
     </div>
   )
 }
