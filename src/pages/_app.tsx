@@ -3,7 +3,6 @@ import '../styles/sweetalert.css'
 import { ThemeProvider } from 'next-themes'
 import { StrictMode } from 'react'
 import { QueryClient, QueryClientProvider } from 'react-query'
-import { UserProvider } from '@auth0/nextjs-auth0'
 import { ReactQueryDevtools } from 'react-query/devtools'
 import type { AppProps } from 'next/app'
 
@@ -12,11 +11,9 @@ function MyApp({ Component, pageProps }: AppProps) {
   return (
     <StrictMode>
       <QueryClientProvider client={queryClient}>
-        <UserProvider>
-          <ThemeProvider>
-            <Component {...pageProps} />
-          </ThemeProvider>
-        </UserProvider>
+        <ThemeProvider>
+          <Component {...pageProps} />
+        </ThemeProvider>
         <ReactQueryDevtools initialIsOpen={false} />
       </QueryClientProvider>
     </StrictMode>

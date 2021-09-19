@@ -3,10 +3,8 @@ import React from 'react'
 import * as TestingLib from '@testing-library/react'
 import '@testing-library/jest-dom/extend-expect'
 import Page from '../../src/pages'
-import { useUser } from '@auth0/nextjs-auth0'
 import { useRouter } from 'next/router'
 
-jest.mock('@auth0/nextjs-auth0')
 jest.mock('next/router')
 
 global.fetch = require('node-fetch')

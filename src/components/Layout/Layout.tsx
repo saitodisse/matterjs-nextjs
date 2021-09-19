@@ -5,11 +5,7 @@ import classnames from 'classnames'
 import { LinkProps } from '../../model/site/LinksList'
 import { ThemeList } from '../../model/site/ThemeList'
 import { useTheme } from 'next-themes'
-import { useUser } from '@auth0/nextjs-auth0'
-import Loading from '../Loading/Loading'
-import { BiLinkExternal, BiLogIn, BiLogOut } from 'react-icons/bi'
-import { BsPersonFill } from 'react-icons/bs'
-import { DropDown } from '../DropDown/DropDown'
+import { BiLinkExternal } from 'react-icons/bi'
 import _ from 'lodash'
 
 export interface LayoutProps {
@@ -22,11 +18,7 @@ export interface LayoutProps {
 export const Layout: React.FC<LayoutProps> = ({ title, menuItems, children }) => {
   const { theme, setTheme } = useTheme()
   const router = useRouter()
-  const { user, error, isLoading } = useUser()
   const checkboxRef = useRef<HTMLInputElement>(null)
-
-  if (isLoading) return <Loading />
-  if (error) return <div>{error.message}</div>
 
   return (
     <div className='h-screen bg-base-100 drawer text-base-content'>
@@ -109,58 +101,6 @@ export const Layout: React.FC<LayoutProps> = ({ title, menuItems, children }) =>
                     </select>
                   </div>
                 </li>
-                <li>
-                  <div className='m-1'>
-                    {!user && (
-                      <Link href='/api/auth/login'>
-                        <a className='btn btn-ghost'>
-                          Login
-                          <BiLogIn size={20} className='mx-2' />
-                        </a>
-                      </Link>
-                    )}
-
-                    {user && (
-                      <>
-                        <DropDown
-                          className='static dropdown-open'
-                          classNameButton='btn-ghost'
-                          width={60}
-                          selectedId={null}
-                          onSelect={() => {
-                            /**/
-                          }}
-                          label={
-                            <div className='avatar'>
-                              <div className='m-1 rounded-full w-9'>
-                                {user?.picture ? (
-                                  <img alt={user.name || undefined} src={user?.picture} />
-                                ) : (
-                                  <BsPersonFill />
-                                )}
-                              </div>
-                            </div>
-                          }
-                          items={[
-                            {
-                              id: '1',
-                              value: (
-                                <Link href='/api/auth/logout'>
-                                  <a className=''>
-                                    <div className='flex items-center p-1 text-primary-content bg-primary'>
-                                      logout
-                                      <BiLogOut size={16} className='ml-2' />
-                                    </div>
-                                  </a>
-                                </Link>
-                              ),
-                            },
-                          ]}
-                        />
-                      </>
-                    )}
-                  </div>
-                </li>
               </ul>
             </div>
           </div>
@@ -218,27 +158,6 @@ export const Layout: React.FC<LayoutProps> = ({ title, menuItems, children }) =>
               )}
             </li>
           ))}
-          <li>
-            <div className='m-1'>
-              {!user && (
-                <Link href='/api/auth/login'>
-                  <a className='btn btn-primary'>
-                    Login
-                    <BiLogIn size={20} className='mx-2' />
-                  </a>
-                </Link>
-              )}
-
-              {user && (
-                <Link href='/api/auth/logout'>
-                  <a className='justify-center btn btn-ghost' title={user.name || undefined}>
-                    logout
-                    <BiLogOut size={17} className='mx-2' />
-                  </a>
-                </Link>
-              )}
-            </div>
-          </li>
         </ul>
       </div>
     </div>

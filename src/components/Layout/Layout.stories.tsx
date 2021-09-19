@@ -3,7 +3,6 @@ import { Story, Meta } from '@storybook/react/types-6-0'
 import { Layout, LayoutProps } from './Layout'
 import { LinksList } from '../../model/site/LinksList'
 import { ThemeList } from '../../model/site/ThemeList'
-import { UserProvider } from '@auth0/nextjs-auth0'
 
 export default {
   title: 'Component/Pages/Layout',
@@ -16,11 +15,7 @@ export default {
   },
 } as Meta
 
-const Template: Story<LayoutProps> = (args) => (
-  <UserProvider>
-    <Layout {...args} />
-  </UserProvider>
-)
+const Template: Story<LayoutProps> = (args) => <Layout {...args} />
 
 // Default scenario
 export const MainLayout = Template.bind({})
